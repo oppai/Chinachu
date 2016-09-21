@@ -1,13 +1,16 @@
 (function() {
-	
 	var program = chinachu.getProgramById(request.param.id, data.recorded);
 	
 	if (program === null) return response.error(404);
 	
 	if (!data.status.feature.filer) return response.error(403);
-	
-	if (!fs.existsSync(program.recorded)) return response.error(410);
-	
+
+	try {
+		if (!(fs.statSync(program.recorded).isFile() || fs.statSync(program.recorded).isSymbolicLink())) return response.error(410);
+	} catch(e) {
+		return response.error(410);
+	}
+
 	switch (request.method) {
 		case 'GET':
 			var fstat = fs.statSync(program.recorded);

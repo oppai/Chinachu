@@ -4,7 +4,11 @@
 	
 	if (program === null) return response.error(404);
 	
-	program.isRemoved = !fs.existsSync(program.recorded);
+	try {
+		program.isRemoved = !(fs.statSync(program.recorded).isFile() || fs.statSync(program.recorded).isSymbolicLink());
+	} catch(e) {
+		program.isRemoved = true
+	}
 	
 	switch (request.method) {
 		case 'GET':

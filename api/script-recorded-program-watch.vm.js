@@ -11,7 +11,11 @@ function init() {
 	
 	if (program.tuner && program.tuner.isScrambling) return response.error(409);
 	
-	if (!fs.existsSync(program.recorded)) return response.error(410);
+	try {
+		if (!(fs.statSync(program.recorded).isFile() || fs.statSync(program.recorded).isSymbolicLink())) return response.error(410);
+	} catch(e) {
+		return response.error(410);
+	}
 	
 	// probing
 	child_process.exec('ffprobe -v 0 -show_format -of json "' + program.recorded + '"', function (err, std) {
